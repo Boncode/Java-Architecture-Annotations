@@ -28,7 +28,7 @@ public class ArchitectureLogger extends SimpleFileLogger {
     }
 
     public void log(LogEntry entry) {
-        List<Class> invokedComponents = new ArrayList<Class>();
+        List<String> invokedComponents = new ArrayList<String>();
         StackTraceElement[] fullStackTrace = Thread.currentThread().getStackTrace();
         for(StackTraceElement element : fullStackTrace) {
             String className = element.getClassName();
@@ -38,33 +38,29 @@ public class ArchitectureLogger extends SimpleFileLogger {
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-            Annotation componentAnnotation = clasz.getAnnotation(ArchitectureComponent.class);
+            ArchitectureComponent componentAnnotation;// = (ArchitectureComponent)clasz.getAnnotation(ArchitectureComponent.class);
 //            logFilePrintStream.println("ANN " + clasz.getSimpleName() + " -> " + componentAnnotation);
-            if(isAnnotated(clasz)) {
-                invokedComponents.add(clasz);
+            if((componentAnnotation = isAnnotated(clasz)) != null) {
+                String componentDescription = className;
+                componentDescription += "(" + componentAnnotation.componentType() + ")";
+                invokedComponents.add(componentDescription);
             }
         }
         if(invokedComponents.size() > 0) {
             logFilePrintStream.println(ARCHITECTURE_COMPONENT_STACK_START +
-                    CollectionSupport.format(invokedComponents, new StringFormatter<Class>() {
-                        public String formatString(Class clasz) {
-                            return clasz.getName();
-                        }
-                    }, ",") + ARCHITECTURE_COMPONENT_STACK_END);
+                    CollectionSupport.format(invokedComponents, "<") + ARCHITECTURE_COMPONENT_STACK_END);
         }
 
     }
 
-    private boolean isAnnotated(Class clasz) {
-        for(Class<?> classAndSuperClasses : ReflectionSupport.getInterfacesAndSuperClassesForClass(clasz)) {
-            Annotation[] declaredAnnotations = classAndSuperClasses.getDeclaredAnnotations();
-            for (Annotation annotation : declaredAnnotations) {
-                if (ArchitectureComponent.class.isAssignableFrom(annotation.getClass())) {
-                    return true;
-                }
+    private ArchitectureComponent isAnnotated(Class clasz) {
+        for(Class<?> classOrSuperClass : ReflectionSupport.getInterfacesAndSuperClassesForClass(clasz)) {
+            ArchitectureComponent componentAnnotation = (ArchitectureComponent)classOrSuperClass.getAnnotation(ArchitectureComponent.class);
+            if(componentAnnotation != null) {
+                return componentAnnotation;
             }
         }
-        return false;
+        return null;
     }
 
 }

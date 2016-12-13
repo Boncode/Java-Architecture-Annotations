@@ -9,5 +9,8 @@ public enum ComponentType {
     ACTION,
     ORCHESTRATOR,
     ENTRY_POINT,
-    PROCESS
+    PROCESS,
+    CONFIGURATION,
+    UTILITY,
+    PACKAGE
 }
