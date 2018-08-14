@@ -54,8 +54,8 @@ public class ArchitectureLogger extends SimpleFileLogger {
     }
 
     private ArchitectureComponent isAnnotated(Class clasz) {
-        for(Class<?> classOrSuperClass : ReflectionSupport.getInterfacesAndSuperClassesForClass(clasz)) {
-            ArchitectureComponent componentAnnotation = (ArchitectureComponent)classOrSuperClass.getAnnotation(ArchitectureComponent.class);
+        for(Object classOrSuperClass : ReflectionSupport.getInterfacesAndSuperClassesForClass(clasz)) {
+            ArchitectureComponent componentAnnotation = (ArchitectureComponent)((Class)classOrSuperClass).getAnnotation(ArchitectureComponent.class);
             if(componentAnnotation != null) {
                 return componentAnnotation;
             }
